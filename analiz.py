@@ -11,8 +11,8 @@ st.subheader("Gerçek Sporcu Emeği Ölçüm Sistemi - İzmir 2026")
 
 # 2. Giriş Alanları (Sidebar)
 st.sidebar.header("📋 Sürücü ve Ekipman")
-surucu_adi = st.sidebar.text_input("Sürücü Adı Soyadı", "Ahmet Tatar")
-bisiklet_marka = st.sidebar.text_input("Bisiklet Marka / Model", "Salcano XRS001")
+surucu_adi = st.sidebar.text_input("Sürücü Adı Soyadı", "Erdal Kozal")
+bisiklet_marka = st.sidebar.text_input("Bisiklet Marka / Model", "Mosso Black Edition 29")
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("⌚ Saat Verileri")
