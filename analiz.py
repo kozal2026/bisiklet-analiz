@@ -8,7 +8,7 @@ st.set_page_config(page_title="Erkoz Analiz", layout="centered")
 st.title("🚴‍♂️ Erkoz Yazılım - Sürüş Analizi")
 
 # Senin linkini buraya sabitledim kanka
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Z4WxyRA3Q3bUtvu29ZebnRIal10554fIQvut9uoVOZY/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1Z4WxyRA3Q3bUtvu29ZebnRIal10554fIQvut9uoVOZY/edit"
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
