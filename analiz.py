@@ -2,8 +2,8 @@ import streamlit as st
 from datetime import date
 import requests
 
-# ERKOZ ANALİZ v26.4 - EFSANE GERİ DÖNÜYOR (TAM GÖRSEL & DETAYLI)
-st.set_page_config(page_title="Erkoz Analiz v26.4", layout="wide", page_icon="🚴‍♂️")
+# ERKOZ ANALİZ v21.2 - TAM İSABET GÜNCELLEMESİ
+st.set_page_config(page_title="Erkoz Analiz v21.2", layout="wide", page_icon="🚴‍♂️")
 
 # --- AYARLAR ---
 ADMIN_PASSWORD = "erkoz" 
@@ -13,7 +13,7 @@ SHEETS_LINK = "https://docs.google.com/spreadsheets/d/1X_O9U0f2K6pD8uS-GjKq69L1A
 if 'is_admin' not in st.session_state:
     st.session_state.is_admin = False
 
-# --- SOL PANEL (TÜM TEKNİK DETAYLAR) ---
+# --- SOL PANEL (PROFİL & TEKNİK DETAYLAR) ---
 st.sidebar.header("👤 Sürücü Profili")
 ad_soyad = st.sidebar.text_input("Ad Soyad", value="Erdal Kozal")
 dogum_tarihi = st.sidebar.date_input("Doğum Tarihi", date(1967, 4, 3))
@@ -29,7 +29,7 @@ beslenme = st.sidebar.selectbox("Beslenme Düzeni (1-3)", [1, 2, 3], index=2)
 st.sidebar.markdown("---")
 st.sidebar.header("🔑 Yönetici Alanı")
 sifre_denemesi = st.sidebar.text_input("Şifre", type="password")
-if st.sidebar.button("Girişi Onayla"):
+if st.sidebar.button("Yönetici Girişini Onayla"):
     if sifre_denemesi == ADMIN_PASSWORD:
         st.session_state.is_admin = True
         st.sidebar.success("Hoş geldin Patron!")
@@ -38,36 +38,30 @@ if st.sidebar.button("Girişi Onayla"):
 
 # --- ANA EKRAN ---
 if st.session_state.is_admin:
-    st.success("🏁 YÖNETİCİ MODU AKTİF - Tüm kayıtlar kontrolünüzde kanka.")
+    st.success("🏁 YÖNETİCİ MODU AKTİF - Verileriniz pırıl pırıl işleniyor.")
 
-st.title("🚴‍♂️ Erkoz Yazılım - Profesyonel Performans Analizi")
+st.title("🚴‍♂️ Erkoz Yazılım - Performans Analiz Merkezi")
 st.markdown("---")
 
 col1, col2 = st.columns(2)
 with col1:
-    st.subheader("📅 Sürüş Verileri")
+    st.subheader("📅 Sürüş Detayları")
     surus_tarihi = st.date_input("Sürüş Tarihi", date.today())
-    surus_km = st.number_input("Yapılan KM", value=100.0)
-    kalori = st.number_input("Yakılan Toplam Kalori (kcal)", value=2500)
+    surus_km = st.number_input("Yapılan KM", value=157.0)
+    kalori = st.number_input("Yakılan Toplam Kalori (kcal)", value=3150)
 
 with col2:
-    st.subheader("🌤️ Dış Koşullar")
+    st.subheader("🌤️ Koşullar")
     ruzgar_hizi = st.number_input("Rüzgar Hızı (km/h)", value=25.0)
     kademe = 1 if ruzgar_hizi <= 15 else (2 if ruzgar_hizi <= 31 else 3)
-    if ruzgar_hizi <= 15: st.info(f"🌬️ 1. Kademe (Hafif)")
-    elif ruzgar_hizi <= 31: st.warning(f"🌪️ 2. Kademe (Orta)")
-    else: st.error(f"🌀 3. Kademe (Sert Mücadele!)")
-    
-    yukselti = st.number_input("Tırmanış / Yükselti (m)", value=1049)
+    yukselti = st.number_input("Yükselti (m)", value=1049)
 
 # --- ANALİZ VE KAYIT ---
-if st.button("🚀 ANALİZİ TAMAMLA VE KAYDET"):
+if st.button("🚀 ANALİZİ VE YAĞ YAKIMINI KAYDET"):
     # Matematiksel Motor
     yas = date.today().year - dogum_tarihi.year
     vke = round(kilo / ((boy/100)**2), 1)
     vke_katkisi = round((vke / 100) * 20, 2)
-    
-    # Standart Puan Hesaplama
     std_puan = round(((yas + 20) / 100) * 3 + (haftalik_km / 100) * 1.5 + (beslenme / 1) * 1.3 + vke_katkisi, 3)
     
     km_puani = round((std_puan / surus_km) * 100, 3)
@@ -78,43 +72,53 @@ if st.button("🚀 ANALİZİ TAMAMLA VE KAYDET"):
     
     final_puan = round(km_puani + ruzgar_katkisi + yukselti_puani + kalori_bonusu, 3)
 
-    # Google Sheets Verisi
+    # --- EXCEL TAMİRİ (SÜTUN SIRALAMASI VE TAM VERİ) ---
     payload = {
-        "adSoyad": ad_soyad, "boy": boy, "kilo": kilo, "bisiklet": bisiklet, "b_kilo": bisiklet_kilosu,
-        "s_tarih": str(surus_tarihi), "s_km": surus_km, "ruzgar": ruzgar_hizi,
-        "yukselti": yukselti, "puan": final_puan, "kalori": kalori, "yag": yakilan_yag
+        "adSoyad": ad_soyad, 
+        "dogumTarihi": str(dogum_tarihi),
+        "boy": boy, 
+        "kilo": kilo, 
+        "bisiklet": bisiklet, 
+        "bisKilosu": bisiklet_kilosu,
+        "haftalikKM": haftalik_km,
+        "beslenme": beslenme,
+        "surusTarihi": str(surus_tarihi), 
+        "surusKM": surus_km, 
+        "ruzgarHizi": ruzgar_hizi,
+        "yukselti": yukselti, 
+        "puan": final_puan, 
+        "kalori": kalori, 
+        "yakilanYag": yakilan_yag
     }
     
     try:
         requests.post(SCRIPT_URL, json=payload)
         st.balloons()
         
-        # --- O MEŞHUR DEV BAŞARI BELGESİ (HTML) ---
+        # --- PRESTİJ BELGESİ (DETAYLI PARANTEZLER) ---
         cert_html = f"""
         <div style="background-color: #0E1117; border: 5px double #FF4B4B; padding: 20px; border-radius: 15px; font-family: sans-serif; color: white;">
             <h2 style="color: #FF4B4B; text-align: center; margin-top: 0;">🏆 ERKOZ PERFORMANS ANALİZİ</h2>
             <p style="text-align: center; color: #888;">Tarih: {surus_tarihi}</p>
             
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td><small style="color:#888">Sürücü:</small><br><b>{ad_soyad}</b></td>
-                    <td style="text-align:right"><small style="color:#888">Bisiklet:</small><br><b>{bisiklet} ({bisiklet_kilosu}kg)</b></td>
-                </tr>
-            </table>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>Sürücü: <b>{ad_soyad}</b></span>
+                <span style="text-align:right">Bisiklet: <b>{bisiklet} ({bisiklet_kilosu}kg)</b></span>
+            </div>
             
             <hr style="border: 0.5px solid #333; margin: 15px 0;">
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">KM Puanı:</small><br><b style="color:#00D4FF">{km_puani}</b>
+                <div style="background:#161B22; padding:12px; border-radius:8px;">
+                    <small style="color:#888">KM Puanı ({surus_km} KM):</small><br><b style="color:#00D4FF">{km_puani}</b>
                 </div>
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">Rüzgar Primi (K{kademe}):</small><br><b style="color:#00D4FF">+{ruzgar_katkisi}</b>
+                <div style="background:#161B22; padding:12px; border-radius:8px;">
+                    <small style="color:#888">Rüzgar Primi ({ruzgar_hizi} km/h):</small><br><b style="color:#00D4FF">+{ruzgar_katkisi}</b>
                 </div>
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">Yükselti Primi:</small><br><b style="color:#00D4FF">+{yukselti_puani}</b>
+                <div style="background:#161B22; padding:12px; border-radius:8px;">
+                    <small style="color:#888">Yükselti Primi ({yukselti} M):</small><br><b style="color:#00D4FF">+{yukselti_puani}</b>
                 </div>
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
+                <div style="background:#161B22; padding:12px; border-radius:8px;">
                     <small style="color:#888">Yakılan Yağ:</small><br><b style="color:#32CD32">{yakilan_yag} Gram</b>
                 </div>
             </div>
@@ -134,10 +138,10 @@ if st.button("🚀 ANALİZİ TAMAMLA VE KAYDET"):
             </div>
         </div>
         """
-        st.components.v1.html(cert_html, height=520, scrolling=False)
-        st.success("Tebrikler kanka! Başarı belgen ve verilerin hazır.")
+        st.components.v1.html(cert_html, height=520)
+        st.success("Tebrikler kanka! Belgen ve Excel kaydın pırıl pırıl hazır.")
     except:
-        st.error("Bağlantı hatası.")
+        st.error("Bağlantı hatası! Excel'e yazılamadı.")
 
 # --- YÖNETİCİ PANELİ ---
 if st.session_state.is_admin:
@@ -146,7 +150,7 @@ if st.session_state.is_admin:
     st.markdown(f"""
         <a href="{SHEETS_LINK}" target="_blank">
             <button style="width:100%; height:80px; background-color:#FF4B4B; color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; cursor:pointer;">
-                📊 TÜM GRUP LİSTESİNİ (AY SONU RAPORU) AÇ
+                📊 TÜM GRUP LİSTESİNİ AÇ
             </button>
         </a>
     """, unsafe_allow_html=True)
