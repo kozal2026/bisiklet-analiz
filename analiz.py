@@ -60,11 +60,11 @@ if st.button("🚀 ANALİZİ ÇALIŞTIR VE EXCEL'İ DOLDUR"):
     # Excel'in beklediği en sade isimlere (key) döndüm ki hata çıkmasın.
     payload = {
         "adSoyad": ad_soyad,
-        "bisiklet": bis_marka,
+        "bisikleti": bis_marka,
         "bisKilosu": bis_kilo,
         "surusTarihi": str(date.today()),
-        "km": km_in,
-        "ruzgar": ruz_in,
+        "Sürüş KM": km_in,
+        "rüzgar": ruz_in,
         "yukselti": yuk_in,
         "puan": skor
     }
