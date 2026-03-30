@@ -1,16 +1,39 @@
 import streamlit as st
 from datetime import date
 import requests
-import time
+import json
+import os
 
-# ERKOZ ANALİZ v29.3 - ZIRHLI GÜVENLİK SÜRÜMÜ
+# --- ERKOZ ANALİZ v29.3 - HAFIZALI ZIRHLI GÜVENLİK SÜRÜMÜ ---
 st.set_page_config(page_title="Erkoz Analiz v29.3", layout="wide", page_icon="🛡️")
+
+# --- HAFIZA SİSTEMİ (JSON) ---
+SETTINGS_FILE = "erkoz_settings.json"
+
+def load_settings():
+    if os.path.exists(SETTINGS_FILE):
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "ad_soyad": "Erdal Kozal",
+        "dogum_tarihi": "1967-04-03",
+        "boy": 179,
+        "kilo": 69.0,
+        "bis_marka": "Mosso Black Edition",
+        "bis_kilosu": 10.5
+    }
+
+def save_settings(data):
+    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+# Uygulama açılışında verileri yükle
+saved_data = load_settings()
 
 # --- AYARLAR ---
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZBLq5CwQosxqAG7LpuNYoIf9nMKloputy7EOVEZx5XcUmhI0wJAh3jExb6gPIrANrJg/exec"
 SHEETS_LINK = "https://docs.google.com/spreadsheets/d/1X_O9U0f2K6pD8uS-GjKq69L1A9Z0oWpXfRzG6oXjL8M"
 
-# Oturum Hafızası (Spam Engeli İçin)
 if 'last_record' not in st.session_state:
     st.session_state.last_record = None
 if 'is_admin' not in st.session_state:
@@ -18,17 +41,19 @@ if 'is_admin' not in st.session_state:
 
 # --- SOL PANEL ---
 st.sidebar.header("👤 Sürücü Profili")
-ad_soyad = st.sidebar.text_input("Ad Soyad", value="Erdal Kozal")
-dogum_tarihi = st.sidebar.date_input("Doğum Tarihi", date(1967, 4, 3))
-boy = st.sidebar.number_input("Boy (cm)", value=179)
-kilo = st.sidebar.number_input("Kilo (kg)", value=69.0)
+# Hafızadan gelen verileri inputlara default değer yapıyoruz
+ad_soyad = st.sidebar.text_input("Ad Soyad", value=saved_data["ad_soyad"])
+d_tarihi_raw = date.fromisoformat(saved_data["dogum_tarihi"]) if isinstance(saved_data["dogum_tarihi"], str) else saved_data["dogum_tarihi"]
+dogum_tarihi = st.sidebar.date_input("Doğum Tarihi", d_tarihi_raw)
+boy = st.sidebar.number_input("Boy (cm)", value=int(saved_data["boy"]))
+kilo = st.sidebar.number_input("Kilo (kg)", value=float(saved_data["kilo"]))
 
 st.sidebar.markdown("---")
 st.sidebar.header("🚲 Donanım")
-bis_marka = st.sidebar.text_input("Bisiklet", value="Mosso Black Edition")
-bis_kilosu = st.sidebar.number_input("Bisiklet Ağırlığı (kg)", value=10.5, step=0.1)
+bis_marka = st.sidebar.text_input("Bisiklet", value=saved_data["bis_marka"])
+bis_kilosu = st.sidebar.number_input("Bisiklet Ağırlığı (kg)", value=float(saved_data["bis_kilosu"]), step=0.1)
 
-# Canlı VKE ve Donanım Analizi
+# Analizler
 vke_hesap = round(kilo / ((boy/100)**2), 1)
 yas = 2026 - dogum_tarihi.year
 zorluk_yuzdesi = round((bis_kilosu - 10) * 2, 1)
@@ -52,71 +77,59 @@ with col2:
     yukselti = st.number_input("Yükselti (m)", value=1049)
     kalori_input = st.number_input("Yakılan Kalori (kcal)", value=3150)
 
-# --- ANALİZ VE ZIRHLI KAYIT ---
 if st.button("🚀 ANALİZİ TAMAMLA VE GÜVENLİ AKTAR"):
-    # GÜVENLİK KONTROLÜ: Aynı veri tekrar mı gönderiliyor?
     current_record_key = f"{ad_soyad}-{km_input}-{date.today()}"
     
     if st.session_state.last_record == current_record_key:
-        st.warning("⚠️ Kanka bu sürüşü zaten kaydettik! Tekrar göndermene gerek yok.")
+        st.warning("⚠️ Kanka bu sürüşü zaten kaydettik!")
     else:
-        # Puan Hesaplama
+        # BİLGİLERİ HAFIZAYA KAYDET (Uygulama kapansa da gitmez)
+        new_settings = {
+            "ad_soyad": ad_soyad,
+            "dogum_tarihi": str(dogum_tarihi),
+            "boy": boy,
+            "kilo": kilo,
+            "bis_marka": bis_marka,
+            "bis_kilosu": bis_kilosu
+        }
+        save_settings(new_settings)
+
+        # Hesaplamalar (Senin algoritman)
         p1 = ((yas + 20) / 100) * 3
         p2 = (vke_hesap / 100) * 20
-        # Standart haftalık km (200) varsayımıyla
         standart_puan = (p1 + p2 + (200/100)*1.5 + 3.9) * bak_katsayisi
-        
         km_p = (standart_puan / km_input) * 100
         kademe = 1 if ruzgar_hizi <= 15 else (2 if ruzgar_hizi <= 31 else 3)
         ruzgar_p = (km_p * kademe) / 10
         yukselti_p = (yukselti / 1000 * 0.3) + 1
-        
         final_puan = round(km_p + ruzgar_p + yukselti_p, 3)
         yakilan_yag = round((kalori_input * 0.8) / 9, 1)
 
         payload = {
-            "adSoyad": ad_soyad, 
-            "bisikleti": bis_marka, 
-            "bisKilosu": bis_kilosu, 
-            "surusTarihi": str(date.today()), 
-            "surusKM": km_input, 
-            "ruzgarHizi": ruzgar_hizi, 
-            "yukselti": yukselti, 
-            "puan": final_puan
+            "adSoyad": ad_soyad, "bisikleti": bis_marka, "bisKilosu": bis_kilosu, 
+            "surusTarihi": str(date.today()), "surusKM": km_input, 
+            "ruzgarHizi": ruzgar_hizi, "yukselti": yukselti, "puan": final_puan
         }
         
         try:
             with st.spinner('Veriler Excel\'e zırhlı hattan aktarılıyor...'):
                 requests.post(SCRIPT_URL, json=payload, timeout=10)
-            
-            # Kaydı Hafızaya Al (Spam Engeli Aktif)
             st.session_state.last_record = current_record_key
             
-            # --- BAŞARI BELGESİ ---
+            # --- SERTİFİKA EKRANI (Aynı Tasarım) ---
             st.markdown(f"""
-            <div style="background-color:#0E1117; border:5px solid #FF4B4B; padding:25px; border-radius:20px; color:white; text-align:center; font-family:sans-serif;">
+            <div style="background-color:#0E1117; border:5px solid #FF4B4B; padding:25px; border-radius:20px; color:white; text-align:center;">
                 <h1 style="color:#FF4B4B; margin:0;">🏆 BAŞARI SERTİFİKASI</h1>
                 <h2 style="margin:10px 0;">{ad_soyad}</h2>
-                <p style="color:#888;">{date.today()} | {bis_marka}</p>
-                <hr style="border:0.5px solid #333; margin:20px 0;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:15px;">
-                    <div style="background:#1F2937; padding:10px; border-radius:10px;"><small>Mesafe</small><br><b>{km_input} KM</b></div>
-                    <div style="background:#1F2937; padding:10px; border-radius:10px;"><small>Yükselti</small><br><b>{yukselti} M</b></div>
-                    <div style="background:#1F2937; padding:10px; border-radius:10px;"><small>VKE</small><br><b style="color:#FFD700;">{vke_hesap}</b></div>
-                </div>
                 <div style="background:linear-gradient(145deg, #FF4B4B, #8B0000); padding:20px; border-radius:15px;">
-                    <p style="margin:0; font-size:14px; opacity:0.8;">GENEL PERFORMANS SKORU</p>
-                    <h1 style="font-size:65px; margin:0; font-weight:bold;">{final_puan}</h1>
-                    <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2);">
-                        <span style="font-size:18px; color:#32CD32; font-weight:bold;">🔥 Yakılan Yağ: {yakilan_yag} gr</span>
-                    </div>
+                    <h1 style="font-size:65px; margin:0;">{final_puan}</h1>
                 </div>
-                <p style="margin-top:20px; font-size:13px; color:#888;">✅ Veriler <b>{ad_soyad}</b> tarafından mühürlenip aktarıldı.</p>
+                <p style="margin-top:20px;">✅ Bilgileriniz yerel hafızaya kaydedildi ve Excel'e aktarıldı.</p>
             </div>
             """, unsafe_allow_html=True)
-            st.success("✅ Veriler güvenli bir şekilde Excel'e işlendi!")
+            st.success("✅ İşlem Başarılı!")
         except:
-            st.error("⚠️ Sunucu bağlantısı reddedildi!")
+            st.error("⚠️ Bağlantı hatası!")
 
 # Yönetici Paneli
 if not st.session_state.is_admin:
@@ -125,4 +138,4 @@ if not st.session_state.is_admin:
             st.session_state.is_admin = True
             st.rerun()
 
-st.caption("Erkoz Yazılım © 2026 | Zırhlı Güvenlik v29.3")
+st.caption("Erkoz Yazılım © 2026 | Hafızalı Zırhlı v29.3")
