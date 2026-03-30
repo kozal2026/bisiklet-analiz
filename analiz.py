@@ -4,8 +4,8 @@ import json
 import os
 from datetime import date
 
-# --- ERKOZ ANALİZ v39.0 | GERÇEK EFSANE SÜRÜM ---
-st.set_page_config(page_title="Erkoz Analiz v39.0", layout="wide", page_icon="🛡️")
+# --- ERKOZ ANALİZ v40.0 | EXCEL TAM UYUMLU FİNAL ---
+st.set_page_config(page_title="Erkoz Analiz v40.0", layout="wide", page_icon="🛡️")
 
 # --- 1. AYARLAR ---
 SETTINGS_FILE = "erkoz_settings.json"
@@ -20,62 +20,62 @@ def load_settings():
 
 saved = load_settings()
 
-# --- 2. SOL PANEL (ADMİN PANELİ GERİ GELDİ) ---
+# --- 2. SOL PANEL (ADMİN PANELİ) ---
 with st.sidebar:
     st.header("🛡️ Kontrol Paneli")
-    ad_soyad = st.text_input("Sürücü", value=saved["ad_soyad"])
+    ad_soyad = st.text_input("Ad Soyad", value=saved["ad_soyad"])
     d_tarihi = st.date_input("Doğum Tarihi", date.fromisoformat(saved["dogum_tarihi"]))
     boy = st.number_input("Boy (cm)", value=int(saved["boy"]))
     kilo = st.number_input("Kilo (kg)", value=float(saved["kilo"]))
     st.markdown("---")
-    bis_marka = st.text_input("Bisiklet", value=saved["bis_marka"])
-    bis_kilo = st.number_input("Donanım KG", value=float(saved["bis_kilosu"]))
+    bis_marka = st.text_input("Bisiklet Modeli", value=saved["bis_marka"])
+    bis_kilo = st.number_input("Bisiklet KG", value=float(saved["bis_kilosu"]))
 
     vke = round(kilo / ((boy/100)**2), 1)
-    zorluk = round((bis_kilo - 10) * 2, 1)
-    st.sidebar.metric("VKE", vke)
-    st.sidebar.metric("Zorluk Etkisi", f"%{zorluk}")
+    st.sidebar.metric("Anlık VKE", vke)
 
 # --- 3. ANA TERMİNAL ---
 st.title("🚀 Erkoz Yazılım | Performans Terminali")
 
 c1, c2 = st.columns(2)
-km_in = c1.number_input("Sürüş Mesafesi (KM)", value=157.0)
-yuk_in = c2.number_input("Toplam Yükselti (m)", value=1049)
-ruz_in = c1.number_input("Rüzgar Hızı (km/h)", value=25.0)
-kal_in = c2.number_input("Yakılan Kalori (kcal)", value=3150)
+km_in = c1.number_input("Sürüş KM", value=157.0)
+yuk_in = c2.number_input("Yükselti (m)", value=1049)
+ruz_in = c1.number_input("Rüzgar (km/h)", value=25.0)
+kal_in = c2.number_input("Kalori (kcal)", value=3150)
 
-if st.button("🚀 ANALİZİ ÇALIŞTIR VE GÜVENLİ AKTAR"):
-    # Ayarları Kaydet
+if st.button("🚀 ANALİZ ET VE EXCEL TABLOSUNU DOLDUR"):
+    # Yerel Kayıt
     new_data = {"ad_soyad": ad_soyad, "dogum_tarihi": str(d_tarihi), "boy": boy, "kilo": kilo, "bis_marka": bis_marka, "bis_kilosu": bis_kilo}
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f: json.dump(new_data, f)
     
-    # Hesaplama Algoritması
+    # Hesaplama
     yas = date.today().year - d_tarihi.year
+    zorluk = (bis_kilo - 10) * 2
     bak = 1 + (zorluk / 100)
     skor = round((((((yas+20)/100)*3) + ((vke/100)*20) + 6.9) * bak / km_in) * 115, 2)
     yag = round((kal_in * 0.8) / 9, 1)
 
-    # --- 🛡️ EXCEL SENKRONİZASYON (ESKİ ÇALIŞAN İSİMLERE DÖNÜLDÜ) ---
-    # Excel'e gitmeyen verileri o eski, çalışan değişken isimleriyle paketledim.
+    # --- 🛡️ EXCEL SENKRONİZASYON (SENİN TABLO SÜTUNLARINA GÖRE) ---
+    # Sütun başlıklarına göre eşleme yapıldı kanka.
     payload = {
         "adSoyad": ad_soyad,
-        "puan": skor,
-        "km": km_in,
-        "yukselti": yuk_in,
-        "ruzgar": ruz_in,
-        "kalori": kal_in,
         "bisiklet": bis_marka,
-        "tarih": str(date.today())
+        "bisKilosu": bis_kilo,
+        "surusTarihi": str(date.today()),
+        "surusKM": km_in,
+        "ruzgar": ruz_in,
+        "yukselti": yuk_in,
+        "surusPuani": skor
     }
     
     try:
+        # Eski çalışan isimler üzerinden tekrar deniyoruz
         requests.post(SCRIPT_URL, json=payload, timeout=5)
-        st.success("✅ Erkoz Veri Tankı Senkronize Edildi!")
+        st.success("✅ Veriler Excel'e (Bisiklet, KM, Rüzgar dahil) gönderildi!")
     except:
-        st.warning("⚠️ Bulut senkronizasyonu başarısız, yerel kayıt tamam.")
+        st.warning("⚠️ Senkronizasyon sorunu.")
 
-    # --- 🏆 JANJANLI SERTİFİKA (v29.3 TASARIMI) ---
+    # --- 🏆 JANJANLI SERTİFİKA ---
     st.divider()
     with st.container(border=True):
         st.header(f"🏆 BAŞARI SERTİFİKASI: {ad_soyad}")
@@ -89,9 +89,8 @@ if st.button("🚀 ANALİZİ ÇALIŞTIR VE GÜVENLİ AKTAR"):
         m4.metric("Yağ Yakımı", f"{yag} gr")
         
         st.divider()
-        # v29.3'teki o büyük kırmızı/turuncu alanları geri getirdik
         res1, res2 = st.columns(2)
         res1.error(f"🎯 *GENEL PERFORMANS SKORU*: {skor}")
         res2.warning(f"🔥 *TOPLAM YAKILAN YAĞ*: {yag} gr")
 
-st.caption("Erkoz Yazılım © 2026 | v39.0 - Efsane Geri Döndü")
+st.caption("Erkoz Yazılım © 2026 | v40.0 - Full Column Armor")
