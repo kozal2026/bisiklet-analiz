@@ -7,7 +7,7 @@ from datetime import date
 st.set_page_config(page_title="Erkoz Analiz", layout="centered")
 st.title("🚴‍♂️ Erkoz Yazılım - Sürüş Analizi")
 
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1Z4WxyRA3Q3bUtvu29ZebnRIal10554fIQvut9uoVOZY/edit"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1Z4WxyRA3Q3bUtvu29ZebnRIal10554fIQvut9uoVOZY/gviz/tq?tqx=out:csv"
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
