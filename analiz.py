@@ -4,103 +4,95 @@ import json
 import os
 from datetime import date
 
-# --- ERKOZ ANALİZ v34.0 - FULL ZIRHLI & GARANTİLİ SÜRÜM ---
-st.set_page_config(page_title="Erkoz Analiz v34.0", layout="wide", page_icon="🛡️")
+# --- ERKOZ ANALİZ v36.0 - EFSANE SERTİFİKA & ZIRHLI KONTROL ---
+st.set_page_config(page_title="Erkoz Analiz v36.0", layout="wide", page_icon="🚴‍♂️")
 
-# --- 1. HAFIZA VE GÜVENLİK ---
+# --- 1. HAFIZA SİSTEMİ ---
 SETTINGS_FILE = "erkoz_settings.json"
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZBLq5CwQosxqAG7LpuNYoIf9nMKloputy7EOVEZx5XcUmhI0wJAh3jExb6gPIrANrJg/exec"
 
 def load_settings():
     if os.path.exists(SETTINGS_FILE):
         try:
-            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f: return json.load(f)
         except: pass
     return {"ad_soyad": "Erdal Kozal", "dogum_tarihi": "1967-04-03", "boy": 179, "kilo": 69.0, "bis_marka": "Mosso Black Edition", "bis_kilosu": 10.5}
 
-saved_data = load_settings()
+saved = load_settings()
 
-# --- 2. SOL PANEL (YÖNETİCİ PANELİ) ---
+# --- 2. SOL PANEL (KONTROL PANELİ - TEMİZLENDİ) ---
 with st.sidebar:
-    st.header("👤 Sürücü Profili")
-    ad_soyad = st.text_input("Ad Soyad", value=saved_data["ad_soyad"])
-    d_tarihi_raw = date.fromisoformat(saved_data["dogum_tarihi"]) if isinstance(saved_data["dogum_tarihi"], str) else saved_data["dogum_tarihi"]
-    dogum_tarihi = st.date_input("Doğum Tarihi", d_tarihi_raw)
-    boy = st.number_input("Boy (cm)", value=int(saved_data["boy"]))
-    kilo = st.number_input("Kilo (kg)", value=float(saved_data["kilo"]))
-
+    st.header("👤 Profil & Donanım")
+    ad_soyad = st.text_input("Ad Soyad", value=saved["ad_soyad"])
+    d_tarihi = st.date_input("Doğum Tarihi", date.fromisoformat(saved["dogum_tarihi"]))
+    boy = st.number_input("Boy (cm)", value=int(saved["boy"]))
+    kilo = st.number_input("Kilo (kg)", value=float(saved["kilo"]))
     st.markdown("---")
-    st.header("🚲 Donanım")
-    bis_marka = st.text_input("Bisiklet", value=saved_data["bis_marka"])
-    bis_kilosu = st.number_input("Bisiklet Ağırlığı (kg)", value=float(saved_data["bis_kilosu"]), step=0.1)
+    bis_marka = st.text_input("Bisiklet", value=saved["bis_marka"])
+    bis_kilo = st.number_input("Bisiklet KG", value=float(saved["bis_kilosu"]))
 
-    # Anlık Metrikler
-    vke_hesap = round(kilo / ((boy/100)**2), 1)
-    yas = date.today().year - dogum_tarihi.year
-    zorluk_yuzdesi = round((bis_kilosu - 10) * 2, 1)
-
+    # Anlık Hesaplar
+    vke = round(kilo / ((boy/100)**2), 1)
+    zorluk = round((bis_kilo - 10) * 2, 1)
+    yas = date.today().year - d_tarihi.year
+    
     st.markdown("---")
-    st.subheader("📊 Canlı Veri")
-    st.metric("VKE", vke_hesap)
-    st.metric("Zorluk Etkisi", f"%{zorluk_yuzdesi}")
+    st.subheader("📊 Canlı Metrikler")
+    st.metric("VKE Durumu", vke)
+    st.metric("Donanım Zorluğu", f"%{zorluk}")
+    # Bozuk Excel linki kaldırıldı, panel temizlendi.
 
-# --- 3. ANA EKRAN ---
-st.title("🛡️ Erkoz Yazılım - Analiz Terminali")
+# --- 3. ANA TERMİNAL ---
+st.title("🚀 Erkoz Yazılım | Analiz Terminali")
 
+# Sürüş Verileri Girişi
 st.subheader("🏁 Sürüş Verileri")
 c1, c2 = st.columns(2)
-with c1:
-    km_input = st.number_input("Mesafe (KM)", value=157.0)
-    ruzgar_hizi = st.number_input("Rüzgar (km/h)", value=25.0)
-with c2:
-    yukselti = st.number_input("Yükselti (m)", value=1049)
-    kalori_input = st.number_input("Yakılan Kalori (kcal)", value=3150)
+km_in = c1.number_input("Mesafe (KM)", value=157.0)
+yuk_in = c2.number_input("Yükselti (m)", value=1049)
+ruz_in = c1.number_input("Rüzgar (km/h)", value=25.0)
+kal_in = c2.number_input("Kalori (kcal)", value=3150)
 
-if st.button("🚀 ANALİZİ TAMAMLA VE GÜVENLİ AKTAR"):
-    # Ayarları Kaydet
-    new_data = {"ad_soyad": ad_soyad, "dogum_tarihi": str(dogum_tarihi), "boy": boy, "kilo": kilo, "bis_marka": bis_marka, "bis_kilosu": bis_kilosu}
+if st.button("🚀 ANALİZİ TAMAMLA VE SERTİFİKAYI OLUŞTUR"):
+    # Kaydet
+    new_data = {"ad_soyad": ad_soyad, "dogum_tarihi": str(d_tarihi), "boy": boy, "kilo": kilo, "bis_marka": bis_marka, "bis_kilosu": bis_kilo}
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f: json.dump(new_data, f)
     
-    # Algoritma (Kesin Sonuç)
-    bak_katsayisi = 1 + (zorluk_yuzdesi / 100)
-    p1 = ((yas + 20) / 100) * 3
-    p2 = (vke_hesap / 100) * 20
-    standart_puan = (p1 + p2 + (200/100)*1.5 + 3.9) * bak_katsayisi
-    km_p = (standart_puan / km_input) * 100
-    kademe = 1 if ruzgar_hizi <= 15 else (2 if ruzgar_hizi <= 31 else 3)
-    final_puan = round(km_p + ((km_p * kademe) / 10) + (yukselti / 1000 * 0.3) + 1, 2)
-    yakilan_yag = round((kalori_input * 0.8) / 9, 1)
+    # Skor Algoritması
+    bak = 1 + (zorluk / 100)
+    final_skor = round((((((yas+20)/100)*3) + ((vke/100)*20) + 6.9) * bak / km_in) * 115, 2)
+    yag_gr = round((kal_in * 0.8) / 9, 1)
 
-    # Excel Gönderim
-    try: requests.post(SCRIPT_URL, json={"adSoyad": ad_soyad, "puan": final_puan, "km": km_input}, timeout=5)
+    # Excel Aktarımı (Buluta Arka Planda)
+    try: requests.post(SCRIPT_URL, json={"adSoyad": ad_soyad, "puan": final_skor, "km": km_in}, timeout=3)
     except: pass
 
-    # --- 🏆 SERTİFİKA ALANI (HATASIZ VE ŞIK) ---
+    # --- 🏆 JANJANLI SERTİFİKA (v29.3 TAKLİDİ - HATASIZ) ---
     st.markdown("---")
     
-    # Koyu Tema Kapsayıcı
+    # Koyu Tema Kapsayıcı (Border=True ile zırhlı kutu)
     with st.container(border=True):
         st.subheader(f"🏆 BAŞARI SERTİFİKASI: {ad_soyad}")
-        st.write(f"📅 Tarih: {date.today()} | 🚲 Ekipman: {bis_marka}")
+        st.caption(f"📅 {date.today()} | 🚲 {bis_marka} | 👤 VKE: {vke}")
         st.divider()
         
-        # Metrikler (Yan yana 3lü)
-        m_col1, m_col2, m_col3 = st.columns(3)
-        m_col1.metric("Mesafe", f"{km_input} KM")
-        m_col2.metric("Yükselti", f"{yukselti} M")
-        m_col3.metric("VKE", vke_hesap)
+        # Metrik Kutuları (v29.3 gibi yan yana 4lü)
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Mesafe", f"{km_in} km")
+        m2.metric("Yükselti", f"{yuk_in} m")
+        m3.metric("Skor", final_skor)
+        m4.metric("Yağ", f"{yag_gr} g")
         
         st.divider()
 
-        # Final Skor Alanları (Renkli ve Büyük)
-        # st.info ve st.error kullanarak o v29.3 havasını hatasız veriyoruz
+        # Ana Skor ve Yağ Yakımı (Büyük, Renkli, Janjanlı Kısımlar)
+        # st.error (Kırmızı) ve st.warning (Turuncu) kullanarak o efsane görüntüyü veriyoruz
         res_col1, res_col2 = st.columns(2)
         with res_col1:
-            st.error(f"🚀 GENEL SKOR: {final_puan}")
+            st.error(f"🚀 *GENEL PERFORMANS SKORU*: {final_skor}")
         with res_col2:
-            st.warning(f"🔥 YAĞ YAKIMI: {yakilan_yag} gr")
+            st.warning(f"🔥 *YAKILAN YAĞ (TOPLAM)*: {yag_gr} gr")
 
     st.success("✅ İşlem Başarılı! Veriler senkronize edildi.")
 
-st.caption("Erkoz Yazılım © 2026 | v34.0 - No-HTML Armor")
+st.caption("Erkoz Yazılım © 2026 | v36.0 - Efsane Geri Dönüyor")
