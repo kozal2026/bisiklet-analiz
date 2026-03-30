@@ -1,13 +1,18 @@
 import streamlit as st
 from datetime import date
 import requests
+import pandas as pd
 
-# ERKOZ ANALİZ v25.0 - ŞEFFAF RÜZGAR ANALİZİ & YAĞ YAKIM GÜNCELLEMESİ
-st.set_page_config(page_title="Erkoz Analiz v25.0", layout="wide", page_icon="🚴‍♂️")
+# ERKOZ ANALİZ v26.0 - YÖNETİCİ & GRUP KAYIT VERSİYONU
+st.set_page_config(page_title="Erkoz Analiz v26.0", layout="wide", page_icon="🚴‍♂️")
 
-st.title("🚴‍♂️ Erkoz Yazılım - Profesyonel Analiz")
+# --- GİZLİ ŞİFRE ---
+ADMIN_PASSWORD = "erkoz" # Burayı istediğin şifre yap kanka
+
+st.title("🚴‍♂️ Erkoz Yazılım - Grup Performans Sistemi")
 st.markdown("---")
 
+# Google Apps Script URL (Senin tablonun linki)
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6UlQDdgybmd9UyNwyIE7Nx2JFXHn5pGMyXA8I_3Zg1zQA9SEYZPp_XFwLh_i63zhU4w/exec"
 
 # --- MOTOR ---
@@ -16,109 +21,85 @@ def ruzgar_kademesi_bul(hiz):
     elif hiz <= 31: return 2
     else: return 3
 
-def hesapla_standart_puan(yas, haftalik_km, beslenme, vke_puani):
-    return round(((yas + 20) / 100) * 3 + (haftalik_km / 100) * 1.5 + (beslenme / 1) * 1.3 + vke_puani, 3)
+# --- SOL PANEL (PROFİL VE YÖNETİM) ---
+st.sidebar.header("👤 Sürücü Kayıt Paneli")
+ad_soyad = st.sidebar.text_input("Ad Soyad", placeholder="Arkadaşın adını yazsın...")
+boy = st.sidebar.number_input("Boy (cm)", value=175)
+kilo = st.sidebar.number_input("Kilo (kg)", value=75.0)
+bisiklet = st.sidebar.text_input("Bisiklet Modeli", value="Yol/Dağ Bisikleti")
 
-# --- ARAYÜZ ---
-st.sidebar.header("👤 Kullanıcı Profili")
-ad_soyad = st.sidebar.text_input("Sürücü Adı Soyadı", value="Erdal Kozal")
-dogum_tarihi = st.sidebar.date_input("Doğum Tarihi", date(1967, 4, 3))
-boy = st.sidebar.number_input("Boy (cm)", value=179)
-kilo = st.sidebar.number_input("Kilo (kg)", value=69.0)
+st.sidebar.markdown("---")
+st.sidebar.header("🔑 Yönetici Alanı")
+admin_key = st.sidebar.text_input("Yönetici Şifresi", type="password")
 
-vke = round(kilo / ((boy/100)**2), 1)
-vke_katkisi = round((vke / 100) * 20, 2)
-st.sidebar.info(f"💡 VKE: {vke} | Katkı: +{vke_katkisi}")
-
-bisiklet = st.sidebar.text_input("Bisiklet Modeli", value="Mosso Black Edition")
-haftalik_km = st.sidebar.number_input("Haftalık KM", value=200)
-beslenme = st.sidebar.number_input("Beslenme (1-3)", value=3)
-
-yas = date.today().year - dogum_tarihi.year
-std_puan = hesapla_standart_puan(yas, haftalik_km, beslenme, vke_katkisi)
-
+# --- ANA EKRAN ---
 col1, col2 = st.columns(2)
 with col1:
-    st.subheader("📅 Sürüş Detayları")
+    st.subheader("📅 Sürüş Bilgileri")
     surus_tarihi = st.date_input("Sürüş Tarihi", date.today())
-    surus_km = st.number_input("Yapılan KM", value=100.0)
-    kalori = st.number_input("Yakılan Toplam Kalori", value=2500)
+    surus_km = st.number_input("Yapılan KM", value=50.0)
+    kalori = st.number_input("Yakılan Kalori", value=1500)
 
 with col2:
     st.subheader("🌤️ Koşullar")
-    ruzgar_hizi = st.number_input("Rüzgar Hızı (km/h)", value=25.0)
-    
-    # --- RÜZGAR BİLGİ NOTU (İSTEDİĞİN ÖZELLİK) ---
+    ruzgar_hizi = st.number_input("Rüzgar Hızı (km/h)", value=15.0)
     kademe = ruzgar_kademesi_bul(ruzgar_hizi)
-    if kademe == 1:
-        st.info(f"🌬️ *1. Kademe Rüzgar:* Hafif esinti. Katkı puanı çarpanı: 1x")
-    elif kademe == 2:
-        st.warning(f"🌪️ *2. Kademe Rüzgar:* Orta şiddet! Katkı puanı çarpanı: 2x")
-    else:
-        st.error(f"🌀 *3. Kademe Rüzgar:* Çok şiddetli! Katkı puanı çarpanı: 3x")
-        
-    yukselti = st.number_input("Yükselti (m)", value=1049)
+    if ruzgar_hizi > 0:
+        st.info(f"Rüzgar Kademesi: {kademe}")
+    yukselti = st.number_input("Yükselti (m)", value=500)
 
-if st.button("🚀 ANALİZİ VE YAĞ YAKIMINI KAYDET"):
-    # Hesaplamalar
-    km_puani = round((std_puan / surus_km) * 100, 3)
-    ruzgar_katkisi = round((km_puani / 10) * kademe, 3)
-    yukselti_puani = round((yukselti / 1000 * 0.3) + 1, 3)
-    kalori_bonusu = round((kalori / 1000) * 1.5, 3)
-    yakilan_yag = round((kalori * 0.8) / 9, 1)
-    
-    final_puan = round(km_puani + ruzgar_katkisi + yukselti_puani + kalori_bonusu, 3)
-    
-    payload = {
-        "adSoyad": ad_soyad, "dotar": str(dogum_tarihi), "boy": boy, "kilo": kilo,
-        "bisiklet": bisiklet, "h_km": haftalik_km, "beslenme": beslenme,
-        "s_tarih": str(surus_tarihi), "s_km": surus_km, "ruzgar": ruzgar_hizi,
-        "yukselti": yukselti, "puan": final_puan, "kalori": kalori, "yag": yakilan_yag
-    }
-    
-    try:
-        requests.post(SCRIPT_URL, json=payload)
-        st.balloons()
+# --- VERİ KAYIT ---
+if st.button("🚀 SÜRÜŞÜ ERKOZ SİSTEMİNE KAYDET"):
+    if not ad_soyad:
+        st.error("Lütfen Ad Soyad giriniz!")
+    else:
+        # Puanlama Mantığı (Genel Standart Üzerinden)
+        vke = round(kilo / ((boy/100)**2), 1)
+        vke_katkisi = round((vke / 100) * 20, 2)
+        km_puani = round((10.0 / surus_km) * 100, 3) # Standart baz puan
+        ruzgar_katkisi = round((km_puani / 10) * kademe, 3)
+        yukselti_puani = round((yukselti / 1000 * 0.3) + 1, 3)
+        kalori_bonusu = round((kalori / 1000) * 1.5, 3)
+        yakilan_yag = round((kalori * 0.8) / 9, 1)
         
-        cert_container = f"""
-        <div style="background-color: #0E1117; border: 5px double #FF4B4B; padding: 20px; border-radius: 15px; font-family: sans-serif; color: white;">
-            <h2 style="color: #FF4B4B; text-align: center; margin-top: 0;">🏆 ERKOZ PERFORMANS ANALİZİ</h2>
-            <p style="text-align: center; color: #888;">Tarih: {surus_tarihi}</p>
+        final_puan = round(km_puani + ruzgar_katkisi + yukselti_puani + kalori_bonusu + vke_katkisi, 3)
+
+        payload = {
+            "adSoyad": ad_soyad, "boy": boy, "kilo": kilo, "bisiklet": bisiklet,
+            "s_tarih": str(surus_tarihi), "s_km": surus_km, "ruzgar": ruzgar_hizi,
+            "yukselti": yukselti, "puan": final_puan, "kalori": kalori, "yag": yakilan_yag
+        }
+        
+        try:
+            requests.post(SCRIPT_URL, json=payload)
+            st.balloons()
+            st.success(f"Tebrikler {ad_soyad}! Verilerin Erdal Kozal'ın ana tablosuna başarıyla işlendi.")
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">Mesafe: {surus_km} KM</small><br><b style="color:#00D4FF">Puan: {km_puani}</b>
-                </div>
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">Rüzgar (Kademe {kademe})</small><br><b style="color:#00D4FF">Primi: +{ruzgar_katkisi}</b>
-                </div>
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">Tırmanış Gücü</small><br><b style="color:#00D4FF">Primi: +{yukselti_puani}</b>
-                </div>
-                <div style="background:#161B22; padding:10px; border-radius:8px;">
-                    <small style="color:#888">Yakılan Yağ</small><br><b style="color:#32CD32">{yakilan_yag} Gram</b>
-                </div>
+            # Arkadaşına özel mini sertifika (Senin imzanla)
+            cert = f"""
+            <div style="border: 4px solid #FF4B4B; padding: 15px; border-radius: 10px; background: #0E1117; color: white; text-align: center;">
+                <h3>🏆 SÜRÜŞ ONAYLANDI</h3>
+                <p>{ad_soyad} - {surus_km} KM - {final_puan} Puan</p>
+                <small>Bu sürüş Erdal Kozal tarafından kayıt altına alınmıştır.</small>
             </div>
-            
-            <div style="margin-top: 20px; background: #1F2937; padding: 15px; border-radius: 10px; border: 2px solid #FF4B4B; text-align: center;">
-                <p style="color:#888; margin:0; font-size: 14px;">Toplam Kalori: {kalori} kcal</p>
-                <h1 style="color: #FF4B4B; font-size: 50px; margin: 5px 0;">{final_puan}</h1>
-                <p style="color:white; font-size: 14px; letter-spacing: 2px;">GENEL SÜRÜŞ SKORU</p>
-            </div>
-            
-            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
-                <b style="color: #FF4B4B; font-size: 14px;">Erkoz Yazılım Ar-Ge</b>
-                <div style="text-align: right;">
-                    <small style="color: #555;">Analiz Onay</small><br>
-                    <span style="color: #EEE; font-size: 18px;"><i>Erdal Kozal</i></span>
-                </div>
-            </div>
-        </div>
-        """
-        st.write("---")
-        st.components.v1.html(cert_container, height=520, scrolling=False)
-    except:
-        st.error("Bağlantı hatası.")
+            """
+            st.markdown(cert, unsafe_allow_html=True)
+        except:
+            st.error("Bağlantı hatası.")
+
+# --- SADECE SANA ÖZEL: AYLIK LİSTE ÇEKME ---
+if admin_key == ADMIN_PASSWORD:
+    st.markdown("---")
+    st.header("🏁 Erkoz Yönetici Paneli")
+    if st.button("📊 TÜM LİSTEYİ GETİR (AY SONU RAPORU)"):
+        try:
+            # Google Sheets'ten verileri çekiyoruz (Bu kısım için Sheets linkini JSON formatında açman gerekebilir)
+            # Şimdilik sana Excel'e gitmen için bir kısayol ve mesaj verelim
+            st.info("Kanka, şifreyi doğru girdin. Tüm grup verileri şu an Google Sheets tablanda birikiyor.")
+            st.write("👉 [Erkoz Bisiklet Analiz Tablosuna Git](https://docs.google.com/spreadsheets/d/1X_O9U0f2K6pD8uS-GjKq69L1A9Z0oWpXfRzG6oXjL8M)") # Senin tablo linkin
+            # Buraya istersen veriyi direkt ekrana tablo olarak döken kodu da ekleyebiliriz kanka.
+        except:
+            st.write("Veri çekme işleminde bir hata oluştu.")
 
 st.markdown("---")
-st.caption("Erkoz Yazılım © 2026 | İzmir")
+st.caption("Erkoz Yazılım © 2026 | Sadece Yetkili Sürücüler İçindir.")
