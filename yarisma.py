@@ -174,8 +174,7 @@ if 'secili_sorular' not in st.session_state:
     st.session_state.gizli_siklar = []
 
 # --- ARAYÜZ ---
-st.markdown('<h2 style="text-align:center; color:#11114e;">Erdal Kozal</h2>', unsafe_allow_html=True)
-st.markdown('<h2 style="text-align:center; color:#11114e;">💰 Kim Milyoner Olmak İster</h2>', unsafe_allow_html=True)
+st.markdown('<h2 style="text-align:center; color:#11114e;">💰 Kim Milyoner</h2>', unsafe_allow_html=True)
 
 if not st.session_state.elendi and st.session_state.index < 12:
     soru = st.session_state.secili_sorular[st.session_state.index]
