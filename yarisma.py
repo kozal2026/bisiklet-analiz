@@ -230,7 +230,7 @@ def get_tum_sorular():
         {"s": "Bisiklet yarışlarında 'Lanterne Rouge' (Kırmızı Fener) tabiri kimin için kullanılır?", "o": ["En öndeki bisikletçi", "Genel klasman sonuncusu", "En hızlı tırmanışçı", "Yarış komiseri"], "c": "Genel klasman sonuncusu"},
         {"s": "2023 yılı itibarıyla Tour de France tarihinde en çok etap kazanan (34 etap) rekorunu kiminle paylaşmaktadır?", "o": ["Mark Cavendish - Eddy Merckx", "Bernard Hinault - Greg LeMond", "Chris Froome - Peter Sagan", "Tadej Pogacar - Jonas Vingegaard"], "c": "Mark Cavendish - Eddy Merckx"},
         {"s": "İtalya'nın efsanevi bisikletçisi Fausto Coppi'nin lakabı nedir?", "o": ["Il Campionissimo", "Pirata", "Squalo", "Pantera"], "c": "Il Campionissimo"},
-        {"s": "Hangi ülkenin resmi dili Portekizce'dir?", "o": ["Arjantin", "Brezilya", "Meksika", "Şili"], "c": "Brezilya"}
+        {"s": "Hangi ülkenin resmi dili Portekizce'dir?", "o": ["Arjantin", "Brezilya", "Meksika", "Şili"], "c": "Brezilya"},
         {"s": "Modern romanın başlangıcı kabul edilen 'Don Kişot' eserinin yazarı kimdir?", "o": ["Cervantes", "Lope de Vega", "Shakespeare", "Dante"], "c": "Cervantes"},
         {"s": "Victor Hugo'nun 'Sefiller' romanında, Jean Valjean'ı hayatı boyunca kovalayan müfettişin adı nedir?", "o": ["Javert", "Marius", "Thenardier", "Enjolras"], "c": "Javert"},
         {"s": "Rus edebiyatının dev ismi Dostoyevski'nin 'Suç ve Ceza' romanındaki başkarakter kimdir?", "o": ["Raskolnikov", "Mişkin", "İvan Karamazov", "Stavrogin"], "c": "Raskolnikov"},
