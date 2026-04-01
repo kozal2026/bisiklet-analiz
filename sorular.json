@@ -1,1 +1,12 @@
-
+[
+  {
+    "s": "Hangi gezegen 'Kızıl Gezegen' olarak bilinir?",
+    "o": ["Venüs", "Mars", "Jüpiter", "Satürn"],
+    "c": "Mars"
+  },
+  {
+    "s": "Türk tarihinin ilk sözlüğü hangisidir?",
+    "o": ["Nutuk", "Divanü Lugati't-Türk", "Atabetü'l Hakayık", "Muhakemetü'l-Lügateyn"],
+    "c": "Divanü Lugati't-Türk"
+  }
+]
