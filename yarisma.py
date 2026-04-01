@@ -25,7 +25,7 @@ st.markdown(f"""
         min-width: calc(50% - {ARALIK_BOSLUGU + 5}px) !important;
     }}
     .stButton>button {{
-        width: 80% !important;
+        width: 100% !important;
         height: {KUTU_YUKSEKLIGI}px !important;
         font-size: {YAZI_BOYUTU}px !important;
         background: #2a2a61 !important;
