@@ -21,34 +21,9 @@ st.markdown("""
         padding: 25px; border-radius: 15px; color: white;
         text-align: center; font-size: 19px; font-weight: bold;
         margin-bottom: 20px; min-height: 140px; display: flex;
-   …
-[15:33, 01.04.2026] Erdal: import streamlit as st
-import time
-import random
-
-# Sayfa ayarları
-st.set_page_config(page_title="Milyoner Yarışması", layout="centered")
-
-# --- TASARIM VE SABİT BUTON ÖLÇÜLERİ (CSS) ---
-st.markdown("""
-    <style>
-    .stApp { background-color: #FFFFFF; }
-    
-    .reward-banner {
-        background-color: #f8f9fa; padding: 10px; border-radius: 10px;
-        border: 2px solid #ffd700; text-align: center; margin-bottom: 15px;
-        color: #11114e; font-weight: bold; font-size: 18px;
-    }
-
-    .question-box {
-        background: linear-gradient(145deg, #11114e, #1e1e8e);
-        padding: 25px; border-radius: 15px; color: white;
-        text-align: center; font-size: 19px; font-weight: bold;
-        margin-bottom: 20px; min-height: 140px; display: flex;
         align-items: center; justify-content: center;
     }
 
-    /* BUTONLARI STANDART ÖLÇÜYE SABİTLEME */
     div[data-testid="stHorizontalBlock"] {
         display: flex !important; flex-direction: row !important;
         flex-wrap: wrap !important; justify-content: center !important; gap: 10px !important;
@@ -61,14 +36,13 @@ st.markdown("""
 
     .stButton>button {
         width: 100% !important;
-        height: 65px !important; /* Yükseklik sabitlendi */
-        border-radius: 15px !important; /* Hafif oval, şık durur */
+        height: 65px !important;
+        border-radius: 15px !important;
         background: #2a2a61 !important;
         color: #ffd700 !important;
         border: 2px solid #5d5dff !important;
         font-weight: bold !important;
-        font-size: 16px !important;
-        white-space: normal !important; /* Yazı sığmazsa alt satıra geçer */
+        font-size: 15px !important;
     }
 
     .stButton>button:hover {
@@ -78,7 +52,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- SORU HAVUZU (12 SORULUK KİLİTLİ LİSTE İÇİN) ---
+# --- SORU HAVUZU ---
 @st.cache_data
 def get_tum_sorular():
     return [
@@ -93,12 +67,15 @@ def get_tum_sorular():
         {"s": "Hangi hayvanın sütü pembe renklidir?", "o": ["Zürafa", "Su Aygırı", "Fil", "Gergedan"], "c": "Su Aygırı"},
         {"s": "Eyfel Kulesi hangi şehirdedir?", "o": ["Berlin", "Roma", "Paris", "Londra"], "c": "Paris"},
         {"s": "Osmanlı Devleti'nin kurucusu kimdir?", "o": ["Orhan Bey", "Osman Bey", "I. Murat", "Fatih Sultan Mehmet"], "c": "Osman Bey"},
-        {"s": "Kabe hangi şehirdedir?", "o": ["Riyad", "Medine", "Mekke", "Cidde"], "c": "Mekke"}
+        {"s": "Kabe hangi şehirdedir?", "o": ["Riyad", "Medine", "Mekke", "Cidde"], "c": "Mekke"},
+        {"s": "Hangisi bir hücre organeli değildir?", "o": ["Mitokondri", "Ribozom", "Hemoglobin", "Lizozom"], "c": "Hemoglobin"},
+        {"s": "Aspirin'in ham maddesi olan ağaç hangisidir?", "o": ["Çam", "Söğüt", "Meşe", "Gürgen"], "c": "Söğüt"},
+        {"s": "Satrançta 'L' şeklinde hareket eden taş hangisidir?", "o": ["Fil", "Kale", "At", "Vezir"], "c": "At"}
     ]
 
 oduller = ["500 TL", "1.000 TL", "2.000 TL", "3.000 TL", "5.000 TL", "7.500 TL", "15.000 TL", "30.000 TL", "60.000 TL", "125.000 TL", "250.000 TL", "1.000.000 TL"]
 
-# --- OYUN DURUMU (SORU TEKRARINI ÖNLER) ---
+# --- OYUN DURUMU ---
 if 'secili_sorular' not in st.session_state:
     havuz = get_tum_sorular()
     st.session_state.secili_sorular = random.sample(havuz, 12)
@@ -109,7 +86,7 @@ if 'secili_sorular' not in st.session_state:
     st.session_state.gizli_siklar = []
 
 # --- ARAYÜZ ---
-st.markdown('<h1 style="text-align:center; color:#11114e;">💰 Milyoner</h1>', unsafe_allow_html=True)
+st.markdown('<h2 style="text-align:center; color:#11114e;">💰 Milyoner</h2>', unsafe_allow_html=True)
 
 if not st.session_state.elendi and st.session_state.index < 12:
     soru = st.session_state.secili_sorular[st.session_state.index]
@@ -118,7 +95,6 @@ if not st.session_state.elendi and st.session_state.index < 12:
     st.markdown(f'<div class="reward-banner">🏆 Soru: {st.session_state.index + 1}/12 | Ödül: {mevcut_odul}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="question-box">{soru["s"]}</div>', unsafe_allow_html=True)
 
-    # 2x2 SABİT ÖLÇÜLÜ BUTONLAR
     col1, col2 = st.columns(2)
     for i, opt in enumerate(soru["o"]):
         with (col1 if i % 2 == 0 else col2):
@@ -136,10 +112,8 @@ if not st.session_state.elendi and st.session_state.index < 12:
                         st.session_state.elendi = True
                         st.rerun()
 
-    # JOKERLER
     st.write("---")
     j_col1, j_col2 = st.columns(2)
-    
     with j_col1:
         if st.session_state.joker_50:
             if st.button("🃏 %50 Joker"):
@@ -147,7 +121,6 @@ if not st.session_state.elendi and st.session_state.index < 12:
                 st.session_state.gizli_siklar = random.sample(yanlislar, 2)
                 st.session_state.joker_50 = False
                 st.rerun()
-    
     with j_col2:
         if st.session_state.joker_erdal:
             if st.button("🤝 Erdal Kanki"):
@@ -166,6 +139,6 @@ elif st.session_state.elendi:
 else:
     st.balloons()
     st.success("TEBRİKLER! 1 MİLYON TL KAZANDINIZ!")
-    if st.button("Tekrar Oyna"):
+    if st.button("Yeniden Oyna"):
         for key in list(st.session_state.keys()): del st.session_state[key]
         st.rerun()
