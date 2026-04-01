@@ -65,7 +65,7 @@ def get_soru_bankasi():
     return [
         {"s": "Futbolda kalecinin topu elle tutabildiği alan hangisidir?", "o": ["Ceza Sahası", "Orta Saha", "Taç Çizgisi", "Korner Köşesi"], "c": "Ceza Sahası", "z": 1},
         {"s": "Hangisi bir yaylı çalgıdır?", "o": ["Gitar", "Keman", "Piyano", "Flüt"], "c": "Keman", "z": 1},
-        {"s": "İstiklal Marşı'mızın şairi kimdir?", "o": ["Ziya Gökalp", "Namık Kemal", "Mehmet Akif Ersoy", "Reşat Nuri"], "c": Mehmet Akif Ersoy", "z": 1},
+        {"s": "İstiklal Marşı'mızın şairi kimdir?", "o": ["Ziya Gökalp", "Namık Kemal", "Mehmet Akif Ersoy", "Reşat Nuri"], "c": "Mehmet Akif Ersoy", "z": 1},
         {"s": "Sinekli Bakkal romanının yazarı kimdir?", "o": ["Halide Edip Adıvar", "Peyami Safa", "Reşat Nuri Güntekin", "Ömer Seyfettin"], "c": "Halide Edip Adıvar", "z": 2},
         {"s": "Basketbolda bir periyot kaç dakikadır?", "o": ["8", "10", "12", "15"], "c": "10", "z": 2},
         {"s": "Osmanlı Devleti'nin kurucusu kimdir?", "o": ["Orhan Bey", "Osman Bey", "I. Murat", "Fatih Sultan Mehmet"], "c": "Osman Bey", "z": 3},
