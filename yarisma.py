@@ -444,7 +444,6 @@ def get_tum_sorular():
         {"s": "Matbaayı (modern baskı makinesini) icat ederek bilgi devrimini başlatan kişi kimdir?", "o": ["Johannes Gutenberg", "James Watt", "Karl Benz", "Blaise Pascal"], "c": "Johannes Gutenberg"},
         {"s": "Modern otomobilin babası kabul edilen ve ilk içten yanmalı motorlu aracı yapan kimdir?", "o": ["Henry Ford", "Karl Benz", "Rudolf Diesel", "Enzo Ferrari"], "c": "Karl Benz"},
         {"s": "Penisilini keşfederek tıp dünyasında çığır açan bilim insanı kimdir?", "o": ["Louis Pasteur", "Alexander Fleming", "Marie Curie", "Robert Koch"], "c": "Alexander Fleming"},
-        {"s": "Uçağı icat ederek ilk kontrollü uçuşu gerçekleştiren kardeşler hangisidir?", "o": ["Wright Kardeşler", "Lumiere Kardeşler", "Montgolfier Kardeşler", "McDonnell Kardeşler"}, "c": "Wright Kardeşler"},
         {"s": "Teleskobu gökyüzü gözlemleri için ilk kez kullanan ve modern astronominin temellerini atan kimdir?", "o": ["Kepler", "Galileo Galilei", "Copernicus", "Hubble"], "c": "Galileo Galilei"},
         {"s": "Buharlı makineyi geliştirerek Sanayi Devrimi'nin başlamasını sağlayan mucit kimdir?", "o": ["James Watt", "George Stephenson", "Eli Whitney", "Robert Fulton"], "c": "James Watt"},
         {"s": "Dinamiti icat eden ve vasiyetiyle kendi adına ödüller verilmesini sağlayan kimdir?", "o": ["Alfred Nobel", "Robert Oppenheimer", "Dmitri Mendeleev", "Niels Bohr"], "c": "Alfred Nobel"},
