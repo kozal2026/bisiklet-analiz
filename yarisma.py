@@ -27,7 +27,7 @@ st.markdown("""
     div[data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-wrap: wrap !important;
-        gap: 10px !important;
+        gap: 15px !important;
         justify-content: center !important;
     }
 
