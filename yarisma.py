@@ -2,6 +2,39 @@ import streamlit as st
 import time
 import random
 
+
+# ==========================================
+# ⚙️ SADECE BURADAKİ RAKAMLARI DEĞİŞTİR:
+KUTU_YUKSEKLIGI = 75   # Kutuların dikine boyu (70, 80, 90 dene)
+YAZI_BOYUTU = 16       # Cevapların yazı büyüklüğü (14 veya 18 dene)
+ARALIK_BOSLUGU = 10    # Kutuların arasındaki mesafe (5 veya 15 dene)
+# ==========================================
+
+st.markdown(f"""
+    <style>
+    div[data-testid="stHorizontalBlock"] {{
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: {ARALIK_BOSLUGU}px !important;
+    }}
+    div[data-testid="column"] {{
+        flex: 1 1 calc(50% - {ARALIK_BOSLUGU + 5}px) !important;
+        min-width: calc(50% - {ARALIK_BOSLUGU + 5}px) !important;
+    }}
+    .stButton>button {{
+        width: 100% !important;
+        height: {KUTU_YUKSEKLIGI}px !important;
+        font-size: {YAZI_BOYUTU}px !important;
+        background: #2a2a61 !important;
+        color: #ffd700 !important;
+        border-radius: 12px !important;
+        border: 2px solid #5d5dff !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+
 # Sayfa ayarları
 st.set_page_config(page_title="Milyoner", layout="centered")
 
@@ -33,24 +66,6 @@ st.markdown("""
         gap: 10px !important;
     }
 
-    div[data-testid="column"] {
-        flex: 1 1 calc(50% - 15px) !important;
-        min-width: calc(50% - 15px) !important;
-        max-width: calc(50% - 15px) !important;
-    }
-
-    .stButton>button {
-        width: 100% !important;
-        height: 75px !important;
-        border-radius: 12px !important;
-        background: #2a2a61 !important;
-        color: #ffd700 !important;
-        border: 2px solid #5d5dff !important;
-        font-weight: bold !important;
-        font-size: 16px !important;
-        white-space: normal !important;
-        overflow: hidden !important;
-    }
 
     .stButton>button:hover {
         background: #ffd700 !important;
