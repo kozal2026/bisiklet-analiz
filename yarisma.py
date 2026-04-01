@@ -159,6 +159,8 @@ def get_tum_sorular():
         {"s": "Dünyanın en kalabalık ülkesi hangisidir (2024 itibarıyla)?", "o": ["Çin", "Hindistan", "ABD", "Endonezya"], "c": "Hindistan"},
         {"s": "Aşağıdakilerden hangisi bir işletim sistemi değildir?", "o": ["Linux", "Windows", "Python", "macOS"], "c": "Python"},
         {"s": "Hangi kuş türü uçamaz?", "o": ["Saka", "Deve Kuşu", "Martı", "Pelikan"], "c": "Deve Kuşu"},
+        {"s": "Tuncay ağanın lakabı nedir?", "o": ["Hızlı Gonzales", "Turbo", "Martı", "Yaralı Ceylan"], "c": "Turbo"},
+        {"s": "G.D.G nin Büyük başkanı kimdir?", "o": ["Ajda Pekkan", "Reis", "Martı Janıtın", "Hüseyin Ovnamak"], "c": "Hüseyin Ovnamak"},
         {"s": "Hangi ülkenin resmi dili Portekizce'dir?", "o": ["Arjantin", "Brezilya", "Meksika", "Şili"], "c": "Brezilya"}
     ]
 
