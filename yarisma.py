@@ -8,7 +8,7 @@ st.set_page_config(page_title="Milyoner Yarışması", layout="centered")
 # --- Gelişmiş Tasarım (CSS) ---
 st.markdown("""
     <style>
-    .main { background-color: #02021e; }
+    .stApp { background-color: #02021e; }
     .stButton>button {
         width: 100%;
         border-radius: 50px;
@@ -20,10 +20,6 @@ st.markdown("""
         font-size: 18px;
         margin-bottom: 10px;
     }
-    .stButton>button:hover {
-        border-color: #ffd700;
-        color: white;
-    }
     .question-box {
         background: linear-gradient(145deg, #0d0d35, #161665);
         padding: 30px;
@@ -31,71 +27,97 @@ st.markdown("""
         border: 3px solid #5d5dff;
         color: white;
         text-align: center;
-        font-size: 24px;
+        font-size: 22px;
         margin-bottom: 30px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    }
-    .money-list {
-        color: #ffd700;
-        text-align: right;
-        font-family: monospace;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- Soru Bankası ---
-if 'sorular' not in st.session_state:
-    st.session_state.sorular = [
-        {"s": "Türkiye'nin başkenti neresidir?", "o": ["İstanbul", "Ankara", "İzmir", "Bursa"], "c": "Ankara", "p": "500 TL"},
-        {"s": "Hangi gezegen 'Kızıl Gezegen' olarak bilinir?", "o": ["Venüs", "Jüpiter", "Mars", "Satürn"], "c": "Mars", "p": "1.000 TL"},
-        {"s": "Python dilinde ekrana yazı yazdırmak için hangisi kullanılır?", "o": ["echo", "print", "display", "write"], "c": "print", "p": "2.000 TL"},
+# --- GENİŞ SORU HAVUZU (Tarih, Spor, Edebiyat, Genel Kültür) ---
+# Soruları zorluk seviyesine göre (1-12) ayırdım.
+def get_soru_bankasi():
+    return [
+        # SEVİYE 1 (500 TL - 2.000 TL)
+        {"s": "Futbolda kalecinin topu elle tutabildiği alan hangisidir?", "o": ["Ceza Sahası", "Orta Saha", "Taç Çizgisi", "Korner Köşesi"], "c": "Ceza Sahası", "z": 1},
+        {"s": "Hangisi bir yaylı çalgıdır?", "o": ["Gitar", "Keman", "Piyano", "Flüt"], "c": "Keman", "z": 1},
+        {"s": "İstiklal Marşı'mızın şairi kimdir?", "o": ["Ziya Gökalp", "Namık Kemal", "Mehmet Akif Ersoy", "Reşat Nuri"], "c": "Mehmet Akif Ersoy", "z": 1},
+        {"s": "Sinekli Bakkal romanının yazarı kimdir?", "o": ["Halide Edip Adıvar", "Peyami Safa", "Reşat Nuri Güntekin", "Ömer Seyfettin"], "c": "Halide Edip Adıvar", "z": 2},
+        {"s": "Basketbolda bir periyot kaç dakikadır? (NBA hariç)", "o": ["8", "10", "12", "15"], "c": "10", "z": 2},
+        
+        # SEVİYE 2 (5.000 TL - 30.000 TL)
+        {"s": "Osmanlı Devleti'nin kurucusu kimdir?", "o": ["Orhan Bey", "Osman Bey", "I. Murat", "Fatih Sultan Mehmet"], "c": "Osman Bey", "z": 3},
+        {"s": "Hangi ülke 'Yükselen Güneşin Ülkesi' olarak bilinir?", "o": ["Çin", "Güney Kore", "Japonya", "Tayland"], "c": "Japonya", "z": 3},
+        {"s": "Don Kişot karakterinin yazarı kimdir?", "o": ["Cervantes", "Shakespeare", "Dante", "Moliere"], "c": "Cervantes", "z": 4},
+        {"s": "Dünya Kupası'nı en çok kazanan ülke hangisidir?", "o": ["Almanya", "İtalya", "Brezilya", "Arjantin"], "c": "Brezilya", "z": 4},
+        
+        # SEVİYE 3 (60.000 TL - 1 MİLYON TL)
+        {"s": "Aspirin'in ham maddesi olan ağaç hangisidir?", "o": ["Çam", "Söğüt", "Meşe", "Gürgen"], "c": "Söğüt", "z": 5},
+        {"s": "Nobel ödülleri hangi ülkede verilmektedir?", "o": ["Norveç-İsveç", "Almanya", "ABD", "İngiltere"], "c": "Norveç-İsveç", "z": 6},
+        {"s": "Mona Lisa tablosu hangi müzede sergilenmektedir?", "o": ["Prado", "British Museum", "Louvre", "Hermitage"], "c": "Louvre", "z": 7}
     ]
 
-# --- Oyun Durumu ---
+# Ödül Listesi
+oduller = ["500 TL", "1.000 TL", "2.000 TL", "3.000 TL", "5.000 TL", "7.500 TL", "15.000 TL", "30.000 TL", "60.000 TL", "125.000 TL", "250.000 TL", "1.000.000 TL"]
+
+# --- OYUN DURUMU ---
 if 'index' not in st.session_state:
     st.session_state.index = 0
     st.session_state.elendi = False
+    st.session_state.havuz = get_soru_bankasi()
+    # Her seviyeden rastgele birer soru seçelim
+    st.session_state.secili_sorular = []
+    for i in range(1, 13):
+        seviye_sorulari = [s for s in st.session_state.havuz if s['z'] <= i] # Şimdilik basit eşleştirme
+        st.session_state.secili_sorular.append(random.choice(seviye_sorulari))
 
-# --- Yarışma Ekranı ---
-st.title("💰 Milyoner Olmak İster Misin?")
+if 'joker_50' not in st.session_state:
+    st.session_state.joker_50 = True
+    st.session_state.gizli_siklar = []
 
-if not st.session_state.elendi and st.session_state.index < len(st.session_state.sorular):
-    soru = st.session_state.sorular[st.session_state.index]
-    
-    # Mevcut ödül ve Soru
-    st.sidebar.title("Ödül Tablosu")
-    for q in reversed(st.session_state.sorular):
-        prefix = "👉 " if q['p'] == soru['p'] else "   "
-        st.sidebar.write(f"{prefix} {q['p']}")
+# --- ARAYÜZ ---
+st.title("💰 Kim Milyoner Olmak İster?")
+
+if not st.session_state.elendi and st.session_state.index < len(oduller):
+    soru = st.session_state.secili_sorular[st.session_state.index]
+    st.sidebar.subheader("Ödül Merdiveni")
+    for i, o in enumerate(reversed(oduller)):
+        idx = len(oduller) - 1 - i
+        color = "yellow" if idx == st.session_state.index else "white"
+        st.sidebar.markdown(f"<span style='color:{color}'>{o}</span>", unsafe_allow_html=True)
+
+    # Joker Butonu
+    if st.session_state.joker_50:
+        if st.sidebar.button("%50 Jokerini Kullan"):
+            yanlislar = [opt for opt in soru['o'] if opt != soru['c']]
+            st.session_state.gizli_siklar = random.sample(yanlislar, 2)
+            st.session_state.joker_50 = False
+            st.rerun()
 
     st.markdown(f'<div class="question-box">{soru["s"]}</div>', unsafe_allow_html=True)
 
-    # Seçenekler
     cols = st.columns(2)
     for i, opt in enumerate(soru["o"]):
-        with cols[i % 2]:
-            if st.button(opt):
-                if opt == soru["c"]:
-                    st.balloons()
-                    st.success("DOĞRU!")
-                    time.sleep(1.5)
-                    st.session_state.index += 1
-                    st.rerun()
-                else:
-                    st.error("YANLIŞ CEVAP!")
-                    st.session_state.elendi = True
-                    time.sleep(1)
-                    st.rerun()
+        if opt in st.session_state.gizli_siklar:
+            cols[i % 2].button(f"---", disabled=True, key=f"btn_{i}")
+        else:
+            with cols[i % 2]:
+                if st.button(opt, key=f"btn_{i}"):
+                    if opt == soru["c"]:
+                        st.success("DOĞRU!")
+                        time.sleep(1)
+                        st.session_state.index += 1
+                        st.session_state.gizli_siklar = []
+                        st.rerun()
+                    else:
+                        st.error("YANLIŞ CEVAP!")
+                        st.session_state.elendi = True
+                        st.rerun()
 
 elif st.session_state.elendi:
-    st.error(f"Maalesef elendiniz. Kazandığınız ödül: {st.session_state.sorular[st.session_state.index-1]['p'] if st.session_state.index > 0 else '0 TL'}")
-    if st.button("Tekrar Dene"):
-        st.session_state.index = 0
-        st.session_state.elendi = False
+    st.error(f"Elendiniz! Kazancınız: {oduller[st.session_state.index-1] if st.session_state.index > 0 else '0 TL'}")
+    if st.button("Tekrar Oyna"):
+        for key in st.session_state.keys(): del st.session_state[key]
         st.rerun()
 else:
     st.balloons()
-    st.success("TEBRİKLER! TÜM SORULARI BİLDİNİZ!")
-    if st.button("Başa Dön"):
-        st.session_state.index = 0
-        st.rerun()
+    st.success("TEBRİKLER! 1 MİLYON TL'NİN SAHİBİ OLDUNUZ!")
