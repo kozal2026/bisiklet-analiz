@@ -5,7 +5,7 @@ import random
 # Sayfa ayarları
 st.set_page_config(page_title="Milyoner", layout="centered")
 
-# --- CSS: KUTULARI DEMİR GİBİ SABİTLEME ---
+# --- CSS: KUTULARI VE BUTONLARI DEMİR GİBİ SABİTLEME ---
 st.markdown("""
     <style>
     .stApp { background-color: #FFFFFF; }
@@ -24,7 +24,7 @@ st.markdown("""
         align-items: center; justify-content: center;
     }
 
-    /* BURASI ÖNEMLİ: KUTU BOYUTLARINI KİLİTLER */
+    /* KUTU BOYUTLARINI KİLİTLER */
     div[data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
@@ -34,14 +34,14 @@ st.markdown("""
     }
 
     div[data-testid="column"] {
-        flex: 1 1 calc(50% - 15px) !important; /* Her kutu tam yarım ekran kaplar */
+        flex: 1 1 calc(50% - 15px) !important;
         min-width: calc(50% - 15px) !important;
         max-width: calc(50% - 15px) !important;
     }
 
     .stButton>button {
         width: 100% !important;
-        height: 75px !important; /* Yükseklik 75px sabitlendi */
+        height: 75px !important;
         border-radius: 12px !important;
         background: #2a2a61 !important;
         color: #ffd700 !important;
@@ -58,7 +58,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 100 SORULUK DEV HAVUZ ---
+# --- GENİŞLETİLMİŞ SORU HAVUZU ---
 @st.cache_data
 def get_tum_sorular():
     return [
@@ -74,15 +74,24 @@ def get_tum_sorular():
         {"s": "Eyfel Kulesi hangi şehirdedir?", "o": ["Berlin", "Roma", "Paris", "Londra"], "c": "Paris"},
         {"s": "Osmanlı Devleti'nin kurucusu kimdir?", "o": ["Orhan Bey", "Osman Bey", "I. Murat", "Fatih Sultan Mehmet"], "c": "Osman Bey"},
         {"s": "Kabe hangi şehirdedir?", "o": ["Riyad", "Medine", "Mekke", "Cidde"], "c": "Mekke"},
-        {"s": "Hangisi bir hücre organeli değildir?", "o": ["Mitokondri", "Ribozom", "Hemoglobin", "Lizozom"], "c": "Hemoglobin"},
         {"s": "Aspirin'in ham maddesi olan ağaç hangisidir?", "o": ["Çam", "Söğüt", "Meşe", "Gürgen"], "c": "Söğüt"},
         {"s": "Satrançta 'L' şeklinde hareket eden taş hangisidir?", "o": ["Fil", "Kale", "At", "Vezir"], "c": "At"},
         {"s": "Türkiye'nin ilk kadın başbakanı kimdir?", "o": ["Tansu Çiller", "Meral Akşener", "Türkan Akyol", "Fatma Şahin"], "c": "Tansu Çiller"},
         {"s": "Güneş sistemindeki en küçük gezegen hangisidir?", "o": ["Mars", "Plüton", "Merkür", "Venüs"], "c": "Merkür"},
         {"s": "Don Kişot karakterinin yazarı kimdir?", "o": ["Cervantes", "Shakespeare", "Dante", "Moliere"], "c": "Cervantes"},
-        {"s": "Hangi ilimiz 'Peyamberler Şehri' olarak bilinir?", "o": ["Konya", "Şanlıurfa", "Bursa", "Mardin"], "c": "Şanlıurfa"},
+        {"s": "Hangi ilimiz 'Peygamberler Şehri' olarak bilinir?", "o": ["Konya", "Şanlıurfa", "Bursa", "Mardin"], "c": "Şanlıurfa"},
         {"s": "Cumhuriyet kaç yılında ilan edilmiştir?", "o": ["1920", "1921", "1922", "1923"], "c": "1923"},
-        # ... Buraya daha fazla soru eklenebilir, mantık aynıdır.
+        {"s": "Türk Tarih Kurumu'nun ilk başkanı kimdir?", "o": ["Tevfik Bıyıklıoğlu", "Afet İnan", "Yusuf Akçura", "Reşit Galip"], "c": "Tevfik Bıyıklıoğlu"},
+        {"s": "Hangisi bir hücre organeli değildir?", "o": ["Mitokondri", "Ribozom", "Hemoglobin", "Lizozom"], "c": "Hemoglobin"},
+        {"s": "Nobel Edebiyat Ödülü'nü alan ilk Türk yazar kimdir?", "o": ["Yaşar Kemal", "Orhan Pamuk", "Aziz Nesin", "Elif Şafak"], "c": "Orhan Pamuk"},
+        {"s": "Fatih Sultan Mehmet kaç yaşında İstanbul'u fethetmiştir?", "o": ["19", "21", "23", "25"], "c": "21"},
+        {"s": "Yüz ölçümü bakımından dünyanın en büyük ülkesi hangisidir?", "o": ["ABD", "Çin", "Kanada", "Rusya"], "c": "Rusya"},
+        {"s": "Hangisi Kanuni Sultan Süleyman'ın lakabıdır?", "o": ["Yavuz", "Muhteşem", "Fatih", "Yıldırım"], "c": "Muhteşem"},
+        {"s": "Akdeniz ile Kızıldeniz'i birbirine bağlayan kanal hangisidir?", "o": ["Panama", "Süveyş", "Korint", "Kiel"], "c": "Süveyş"},
+        {"s": "Telefonun mucidi kimdir?", "o": ["Edison", "Tesla", "Graham Bell", "Marconi"], "c": "Graham Bell"},
+        {"s": "Türkiye'nin en uzun nehri hangisidir?", "o": ["Fırat", "Dicle", "Kızılırmak", "Sakarya"], "c": "Kızılırmak"},
+        {"s": "Yedi Renkli Göl olarak bilinen gölümüz hangisidir?", "o": ["Van Gölü", "Eğirdir Gölü", "Beyşehir Gölü", "Tuz Gölü"], "c": "Eğirdir Gölü"},
+        {"s": "Türk parasından 6 sıfır kaç yılında atılmıştır?", "o": ["2003", "2004", "2005", "2006"], "c": "2005"}
     ]
 
 oduller = ["500 TL", "1.000 TL", "2.000 TL", "3.000 TL", "5.000 TL", "7.500 TL", "15.000 TL", "30.000 TL", "60.000 TL", "125.000 TL", "250.000 TL", "1.000.000 TL"]
@@ -90,7 +99,6 @@ oduller = ["500 TL", "1.000 TL", "2.000 TL", "3.000 TL", "5.000 TL", "7.500 TL",
 # --- OYUN DURUMU ---
 if 'secili_sorular' not in st.session_state:
     havuz = get_tum_sorular()
-    # Havuzdan rastgele 12 soru seç ve sabitle
     st.session_state.secili_sorular = random.sample(havuz, min(len(havuz), 12))
     st.session_state.index = 0
     st.session_state.elendi = False
@@ -148,10 +156,13 @@ if not st.session_state.elendi and st.session_state.index < 12:
 elif st.session_state.elendi:
     st.error(f"Elendiniz! Ödül: {oduller[st.session_state.index-1] if st.session_state.index > 0 else '0 TL'}")
     if st.button("🔄 Yeniden Başla"):
-        for key in list(st.session_state.keys()): del st.session_state[key]
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
 else:
     st.balloons()
     st.success("1 MİLYON TL KAZANDINIZ!")
     if st.button("🎮 Tekrar Oyna"):
-        for key in list(st.session_state.keys
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
