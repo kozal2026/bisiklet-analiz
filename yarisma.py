@@ -5,38 +5,36 @@ import random
 # Sayfa ayarları
 st.set_page_config(page_title="Milyoner Yarışması", layout="centered")
 
-# --- GENİŞLETİLMİŞ TASARIM (CSS - Mobil Odaklı 2x2 Düzen) ---
+# --- CSS: MOBİLDE 2x2 BUTON DÜZENİ ---
 st.markdown("""
     <style>
-    /* Ana Arka Plan */
     .stApp { background-color: #02021e; }
     
-    /* Ödül Merdiveni (Sidebar) Tasarımı */
-    [data-testid="stSidebar"] {
-        background-color: #05052d;
-        border-right: 2px solid #5d5dff;
+    /* Butonları yan yana zorlayan sihirli dokunuş */
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
     }
-    .money-item {
-        padding: 5px 10px;
-        border-radius: 10px;
-        margin-bottom: 2px;
-        font-family: 'Courier New', Courier, monospace;
-        font-weight: bold;
-        font-size: 18px;
-    }
-    .current-step {
-        background-color: #ffd700;
-        color: #02021e !important;
-        border: 2px solid white;
-    }
-    .passed-step {
-        color: #55557f !important;
-    }
-    .upcoming-step {
-        color: #ffffff !important;
+    
+    div[data-testid="column"] {
+        width: calc(50% - 10px) !important;
+        flex: 1 1 calc(50% - 10px) !important;
+        min-width: calc(50% - 10px) !important;
     }
 
-    /* Soru Kutusu */
+    .stButton>button {
+        width: 100%;
+        border-radius: 50px;
+        height: 3.8em;
+        background: linear-gradient(to right, #0d0d4b, #1e1e8e);
+        color: #ffd700;
+        border: 2px solid #5d5dff;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
     .question-box {
         background: linear-gradient(145deg, #0d0d35, #161665);
         padding: 25px;
@@ -45,81 +43,71 @@ st.markdown("""
         color: white;
         text-align: center;
         font-size: 20px;
+        font-weight: bold;
         margin-bottom: 20px;
-        font-weight: bold;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     }
-
-    /* --- BUTON TASARIMI VE MOBİLDE 2x2 DÜZEN (BU KISIM KRİTİK!) --- */
-    
-    /* Mobil Uyumlu Buton Taşıyıcısı */
-    .stHorizontalBlock {
-        display: flex;
-        flex-wrap: wrap; /* Mobilde sığmazsa alt satıra geçsin */
-        justify-content: space-between; /* Aralarında boşluk olsun */
-    }
-
-    /* Butonların Kendisi */
-    .stButton>button {
-        width: 100%; /* Sütun genişliğini kaplasın */
-        max-width: 48%; /* Mobilde yan yana iki tane sığsın (boşluklar dahil) */
-        flex: 1 1 45%; /* Esnek genişlik */
-        border-radius: 50px;
-        height: 3.5em;
-        background: linear-gradient(to right, #0d0d4b, #1e1e8e);
-        color: #ffd700;
-        border: 2px solid #5d5dff;
-        font-weight: bold;
-        font-size: 16px; /* Mobilde biraz daha küçük yazı */
-        margin-bottom: 15px; /* Alt alta gelenler arasında boşluk */
-        box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    }
-    
-    /* Bilgisayarda Buton Genişliği (48% Mobilde Sadece Yan Yana Getirmek İçin) */
-    @media (min-width: 768px) {
-        .stButton>button {
-            max-width: 100%; /* Bilgisayarda st.columns düzenine uysun */
-        }
-    }
-
     </style>
     """, unsafe_allow_html=True)
 
-# --- SORU BANKASI (ÖNCEKİ SORULAR) ---
-# (Lütfen koddaki get_soru_bankasi fonksiyonunu ve session state mantığını olduğu gibi koru)
-# --- Sadece CSS ve Arayüz kısmını güncelliyoruz ---
+# --- OYUN VERİLERİ VE BAŞLATMA ---
+def get_soru_bankasi():
+    return [
+        {"s": "Futbolda kalecinin topu elle tutabildiği alan hangisidir?", "o": ["Ceza Sahası", "Orta Saha", "Taç Çizgisi", "Korner Köşesi"], "c": "Ceza Sahası", "z": 1},
+        {"s": "Hangisi bir yaylı çalgıdır?", "o": ["Gitar", "Keman", "Piyano", "Flüt"], "c": "Keman", "z": 1},
+        {"s": "İstiklal Marşı'mızın şairi kimdir?", "o": ["Ziya Gökalp", "Namık Kemal", "Mehmet Akif Ersoy", "Reşat Nuri"], "c": "Mehmet Akif Ersoy", "z": 1},
+        {"s": "Türkiye'nin yüzölçümü en büyük ili hangisidir?", "o": ["İstanbul", "Ankara", "Konya", "Erzurum"], "c": "Konya", "z": 1},
+        {"s": "Osmanlı Devleti'nin kurucusu kimdir?", "o": ["Orhan Bey", "Osman Bey", "I. Murat", "Fatih Sultan Mehmet"], "c": "Osman Bey", "z": 3},
+        {"s": "Aspirin'in ham maddesi olan ağaç hangisidir?", "o": ["Çam", "Söğüt", "Meşe", "Gürgen"], "c": "Söğüt", "z": 5}
+    ]
 
-# --- ARAYÜZ ---
+oduller = ["500 TL", "1.000 TL", "2.000 TL", "3.000 TL", "5.000 TL", "7.500 TL", "15.000 TL", "30.000 TL", "60.000 TL", "125.000 TL", "250.000 TL", "1.000.000 TL"]
+
+# Hata almamak için tüm değişkenleri tek seferde tanımlıyoruz
+if 'index' not in st.session_state or 'elendi' not in st.session_state:
+    st.session_state.index = 0
+    st.session_state.elendi = False
+    st.session_state.joker_50 = True
+    st.session_state.gizli_siklar = []
+    st.session_state.havuz = get_soru_bankasi()
+    st.session_state.secili_sorular = random.sample(st.session_state.havuz, min(len(st.session_state.havuz), 12))
+
+# --- OYUN EKRANI ---
 st.title("💰 Kim Milyoner Olmak İster?")
 
-if not st.session_state.elendi and st.session_state.index < len(oduller):
+if not st.session_state.elendi and st.session_state.index < len(st.session_state.secili_sorular):
     soru = st.session_state.secili_sorular[st.session_state.index]
     
-    # Gelişmiş Ödül Merdiveni (Sidebar - Olduğu Gibi)
-    # ... (Lütfen Sidebar ve Joker kodunu koru)
-
-    # Soru Kutusu
     st.markdown(f'<div class="question-box">{soru["s"]}</div>', unsafe_allow_html=True)
 
-    # --- YENİ BUTON DÜZENİ (2x2) ---
-    # st.columns(2) bilgisayarda yan yana getirir, 
-    # CSS de mobilde yan yana gelmelerini zorlar.
-    
-    cols = st.columns(2)
+    # Butonları yan yana dizecek yapı
+    col1, col2 = st.columns(2)
     for i, opt in enumerate(soru["o"]):
-        if opt in st.session_state.gizli_siklar:
-            # Jokerle silinen şık
-            with cols[i % 2]:
-                st.button(f" ", disabled=True, key=f"btn_{i}")
-        else:
-            with cols[i % 2]:
-                if st.button(opt, key=f"btn_{i}"):
-                    # Doğru/Yanlış Cevap Kontrolü
+        target_col = col1 if i % 2 == 0 else col2
+        with target_col:
+            if opt in st.session_state.gizli_siklar:
+                st.button(" ", disabled=True, key=f"btn_{i}_{st.session_state.index}")
+            else:
+                if st.button(opt, key=f"btn_{i}_{st.session_state.index}"):
                     if opt == soru["c"]:
                         st.success("DOĞRU!")
-                        # ... (Lütfen devam eden session state ve rerun kodunu koru)
+                        time.sleep(1)
+                        st.session_state.index += 1
+                        st.session_state.gizli_siklar = []
+                        st.rerun()
                     else:
-                        st.error(f"YANLIŞ! Doğru cevap: {soru['c']}")
-                        # ... (Lütfen devam eden elendi kodunu koru)
+                        st.session_state.elendi = True
+                        st.rerun()
+    
+    # Joker Butonu (Sadece mobilde denge için alta koydum)
+    if st.session_state.joker_50:
+        if st.button("🃏 %50 Jokerini Kullan"):
+            yanlislar = [opt for opt in soru['o'] if opt != soru['c']]
+            st.session_state.gizli_siklar = random.sample(yanlislar, 2)
+            st.session_state.joker_50 = False
+            st.rerun()
 
-# --- (YENİDEN BAŞLA VE ELENDİ KODLARINI OLDUĞU GİBİ KORU) ---
+elif st.session_state.elendi:
+    st.error("YANLIŞ CEVAP! Yarışma Bitti.")
+    if st.button("Yeniden Başla"):
+        st.session_state.clear()
+        st.rerun()
